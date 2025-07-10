@@ -3,6 +3,52 @@
 
 require 'spec_helper'
 
+describe 'have_child_tag' do
+  asset 'nested_matchers'
+
+  it 'should not find itself' do
+    expect(rendered).to have_tag('div#one') do |a|
+      expect(a).not_to have_child_tag 'div#one'
+    end
+  end
+
+  it 'should not find siblings tags' do
+    expect(rendered).to have_tag('div#one') do |a|
+      expect(a).not_to have_child_tag 'div#two'
+    end
+    expect(rendered).to have_tag('p.find_me', :count => 3) do |b|
+      expect(b).not_to have_child_tag 'p.find_me'
+    end
+  end
+
+  it 'should not find siblings tags' do
+    expect(rendered).to have_tag('div#one') do |a|
+      expect(a).not_to have_child_tag 'div#two'
+
+      expect(a).to have_tag('p.deep-nesting', :count => 1) do |b|
+        expect(b).not_to have_child_tag 'div#one'
+        expect(b).not_to have_child_tag 'p.find_me'
+        expect(b).to have_child_tag 'b.nested'
+      end
+    end
+  end
+
+  it 'should find direct children' do
+    expect(rendered).to have_tag('div#one') do |a|
+      expect(a).to have_child_tag 'p.find_me'
+      expect(a).to have_child_tag('p.deep-nesting', :count => 1)
+    end
+  end
+
+  it 'should find grand children at any level' do
+    expect(rendered).to have_tag('div#one') do |a|
+      expect(a).to have_child_tag 'p.find_me'
+      expect(a).to have_child_tag('p.deep-nesting', :count => 1)
+      expect(a).to have_child_tag('i', :count => 1)
+    end
+  end
+end
+
 describe 'have_tag' do
   context '[through css selector]' do
     asset 'search_and_submit'

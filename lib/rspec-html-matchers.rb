@@ -65,6 +65,11 @@ module RSpecHtmlMatchers
     @__current_scope_for_nokogiri_matcher = HaveTag.new(tag, options, &block)
   end
 
+  def have_child_tag tag, options = {}, &block
+    options[:match_any_child_tag] = true
+    have_tag(tag, options, &block)
+  end
+
   # tests whether tag have any content inside
   #
   # @example

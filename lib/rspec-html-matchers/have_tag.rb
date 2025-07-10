@@ -44,6 +44,7 @@ module RSpecHtmlMatchers
 
     def initialize tag, options = {}, &block
       @tag = tag.to_s
+      @match_any_child_tag = options.delete(:match_any_child_tag)
       @options = options
       @block = block
 
@@ -60,6 +61,10 @@ module RSpecHtmlMatchers
 
       if (without_attrs = @options.delete(:without)) && classes = without_attrs.delete(:class)
         @tag += ":not(.#{classes_to_selector(classes)})"
+      end
+
+      if @match_any_child_tag
+        @tag = "* > #{@tag}"
       end
 
       validate_options!
@@ -89,6 +94,7 @@ module RSpecHtmlMatchers
       rescue NoMethodError
         Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
       end
+
       if tag_presents? && proper_content? && count_right?
         @block.call(self) if @block
         true
